@@ -3,14 +3,14 @@ HOST: http://polls.apiblueprint.org/
 
 # Eddie Van Hailing
 
-The Eddie API is the backbone of the Eddie Van HAiling app. 
+The Eddie API is the backbone of the Eddie Van Hailing app. 
 
-## Questions Collection [/quote]
+## Quotes Resource [/quote]
 
 ### Create New Quote [POST]
 
 This method allows you to create a new quote given a pickup 
-and dropoff locationx
+and dropoff location.
 
 + Request (application/json)
 
@@ -27,72 +27,228 @@ and dropoff locationx
             "pickup_datetime": "2017-11-16 15:42:49.440762-05:00"
         }
 
+
++ Response 201 (application/json)
+    + Body
+        {
+            "rider_id": "58d7875b-40f1-4cab-b650-bfc972bb8a46",
+            "pickup_location": {
+                "latitude": 40.7246704,
+                "longitude": -73.9918311
+            },
+            "dropoff_location": {
+                "latitude": 40.759155474313346,
+                "longitude": -73.95326614379883
+            },
+            "pickup_datetime": "2017-11-16 15:42:49.440762-05:00",
+            "quote": {
+                "ukelele": 18.72,
+                "kramer": 34.71,
+                "double-necker": 46.82
+            },
+            "created": "2017-12-07 03:19:32.014853+00:00",
+            "id": "a825b041-ed6b-4b66-a96d-dcfdb1488a89"
+        }
+    
+    + Schema
+            {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "type": "object",
+            "properties": {
+                "rider_id": {"type": "string"},
+                "pickup_location": {
+                    "type": "object",
+                    "properties": {
+                        "latitude": {"type": "number"},
+                        "longitude": {"type": "number"}
+                    }
+                },
+                "dropoff_location": {
+                    "type": "object",
+                    "properties": {
+                        "latitude": {"type": "number"},
+                        "longitude": {"type": "number"}
+                    },
+                    "pickup_datetime": {"type": "string"}
+                },
+                "quote":{
+                    "type":"object",
+                    "properties": {
+                        "ukelele": {"type": "number"},
+                        "kramer": {"type": "number"},
+                        "double-necker": {"type": "number"}
+                    }
+                },
+                "created":{"type":"timestamp"},
+                "id":{"type":"string"}
+            }
+        }
+
+
+### Get Quote Information [GET /quote/{quote_id}]
++ Parameters
+    + quote_id (string) - ID of the Quote in the form of a string
+
 + Response 200 (application/json)
 
-        [
-            {
-                "rider_id": "58d7875b-40f1-4cab-b650-bfc972bb8a46",
-                "pickup_location": {
-                    "latitude": 40.7246704,
-                    "longitude": -73.9918311
-                },
+           {
+                "created": "2017-12-07 03:19:32.014000+00:00",
                 "dropoff_location": {
                     "latitude": 40.759155474313346,
                     "longitude": -73.95326614379883
                 },
+                "id": "a825b041-ed6b-4b66-a96d-dcfdb1488a89",
                 "pickup_datetime": "2017-11-16 15:42:49.440762-05:00",
-                "quote": {
-                    "ukelele": 18.72,
-                    "kramer": 34.71,
-                    "double-necker": 46.82
+                "pickup_location": {
+                    "latitude": 40.7246704,
+                    "longitude": -73.9918311
                 },
-                "created": "2017-12-07 03:19:32.014853+00:00",
-                "id": "a825b041-ed6b-4b66-a96d-dcfdb1488a89"
+                "quote": {
+                    "double-necker": 46.82,
+                    "kramer": 34.71,
+                    "ukelele": 18.72
+                },
+                "rider_id": "58d7875b-40f1-4cab-b650-bfc972bb8a46"
             }
-        ]
+            
 
-### Get Quote Information [GET]
+## Trips Resource [/trip]
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+### Create New Trip [POST]
+
+This method allows you to create a new trip given an existing quote
+and a vehicle type.
 
 + Request (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "quote_id":"a825b041-ed6b-4b66-a96d-dcfdb1488a89",
+            "vehicle_type": "ukelele"
         }
 
 + Response 201 (application/json)
 
-    + Headers
+        {
+            "trip_id": "f23ad104-31dd-4b62-b2fa-d6cc9d89a95a"
+        }
 
-            Location: /questions/2
 
-    + Body
+### Get Trip Information [GET /trip/{trip_id}]
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+This method provides trip information given a trip ID. 
+
++ Parameters
+    + trip_id (string) - ID of the Trip in the form of a string
+
++ Response 200 (application/json)
+
+           {
+                "created": "2017-12-07 07:56:33.634000+00:00",
+                "driver_id": null,
+                "dropoff_location": {
+                    "latitude": 40.66732907631663,
+                    "longitude": -73.97751063108444
+                },
+                "id": "3fccfc08-5f4b-4249-9bb4-60e9bdd4fd37",
+                "pickup_location": {
+                    "latitude": 40.92777007401551,
+                    "longitude": -73.85385811328888
+                },
+                "price": 49.53,
+                "rider_id": "it-doesnt-matter-as-long-as-its-a-string",
+                "status": "OPEN",
+                "vehicle_type": "ukelele"
             }
+            
+            
+## Rider Resource [/rider]
+
+### Create New Rider [POST]
+
+This method allows you to create a new rider.
+
++ Request (application/json)
+
+        {
+            "username": "dhachuel",
+            "email": "dhachuel@gmail.com",
+            "password": "root"
+        }
++ Response 201 (application/json)
+
+        {
+            "rider_id": "43b61f5b-16ee-4327-aa98-8c01b6db4a84"
+        }
+
+
+### Get Rider Information [GET /rider/{rider_id}]
+This method provides rider information. 
+
++ Attributes
+    + email (string) - email of the Rider in the form of a string
+    + password (string) - password of the Rider in the form of a string
+
++ Response 200 (application/json)
+
+           {
+                "id": "45949a47-f6f9-4f0f-b256-29c26d20ca4d",
+                "username": "dhachuel"
+            }
+
+### Delete Rider [DELETE]
+
+This method deletes a driver.
+
++ Response 202 (application/json)
+
+
+## Driver Resource [/driver]
+
+### Create New Driver [POST]
+
+This method allows you to create a new driver.
+
++ Request (application/json)
+
+        {
+            "username": "dhachuel",
+            "email": "dhachuel@gmail.com",
+            "password": "root"
+        }
++ Response 201 (application/json)
+
+        {
+            "driver_id": "43b61f5b-16ee-4327-aa98-8c01b6db4a84"
+        }
+
+
+### Get Driver Information [GET]
+This method provides driver information. 
+
++ Attributes
+    + email (string) - email of the Driver in the form of a string
+    + password (string) - password of the Driver in the form of a string
+
++ Response 200 (application/json)
+
+           {
+                "id": "45949a47-f6f9-4f0f-b256-29c26d20ca4d",
+                "username": "dhachuel"
+            }
+                
+### Delete Driver [DELETE /driver/{driver_id}]
+
+This method deletes a driver.
+
++ Response 202 (application/json)
+
+### Update Driver Location [PUT /driver/location/{driver_id}]
+
+This method updates the lat-long location of a driver.
++ Parameters
+    + driver_id (string) - ID of the Driver in the form of a string
++ Attributes
+    + latitude (number)
+    + longitude (number)
+    
++ Response 200
