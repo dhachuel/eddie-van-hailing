@@ -6,7 +6,7 @@ import os
 # RDB_HOST = 'localhost'
 # RDB_PORT = 28015
 RDB_HOST = 'aws-us-east-1-portal.32.dblayer.com'
-RDB_PORT = 25889 #25889
+RDB_PORT = 25889
 RDB_USER = 'dhachuel'
 
 # Database and table

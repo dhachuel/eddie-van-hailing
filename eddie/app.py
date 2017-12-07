@@ -15,6 +15,7 @@ from eddie.middleware import AuthMiddleware
 from eddie.hooks import api_key, log_operation
 from eddie.resources.quote import QuoteResource
 from eddie.resources.trip import TripResource
+from eddie.resources.rider import RiderResource
 from eddie.helpers import getReQLNow
 import rethinkdb as rdb
 import hashlib
@@ -25,95 +26,6 @@ import hashlib
 api = falcon.API(
     middleware= AuthMiddleware()
 )
-
-##
-## Rider Resource
-##
-class RiderResource(object):
-
-    @property
-    def __post_request_schema(self):
-        return (
-            {
-                "type": "object",
-                "properties": {
-                    "username": {"type": "string"},
-                    "email": {"type": "string"},
-                    "password": {"type": "string"}
-                }
-            }
-        )
-
-    def on_post(self, req, resp):
-        try:
-            raw_json = req.stream.read()
-        except Exception as ex:
-            raise falcon.HTTPError(falcon.HTTP_400,
-                                   'Error',
-                                   ex.message)
-
-        try:
-            result_json = json.loads(raw_json, encoding='utf-8')
-        except ValueError:
-            raise falcon.HTTPError(
-                falcon.HTTP_400,
-                'Malformed JSON',
-                'Could not decode the request body. The '
-                'JSON was incorrect.'
-            )
-
-        # Validate request
-        try:
-            validate(result_json, self.__post_request_schema)
-        except ValidationError as e:
-            raise falcon.HTTPError(
-                falcon.HTTP_400,
-                'Request Format Error',
-                e.message
-            )
-
-        # Insert user in database
-        check_if_email_exists = True \
-            if rdb.db(PROJECT_DB) \
-                   .table('riders') \
-                   .filter(rdb.row['email'] \
-                   .eq(result_json['email'])) \
-                   .count().run(rdb_conn) > 0 \
-            else False
-
-        if check_if_email_exists:
-            resp.status = falcon.HTTP_303
-            resp.body = 'Rider already exists.'
-        else:
-            rdb_response = rdb.db(PROJECT_DB).table('riders').insert(
-                {
-                    "email": result_json['email'],
-                    "pwd": hashlib.sha256(str.encode(result_json['password'])).hexdigest(),
-                    "username": result_json['username'],
-                    "created": getReQLNow()
-                }
-            ).run(rdb_conn)
-            resp.body = json.dumps(
-                {
-                    "rider_id": rdb_response['generated_keys'][0]
-                },
-                ensure_ascii=False,
-                default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
-            )
-            resp.status = falcon.HTTP_201 # created
-
-    def on_delete(self, req, resp):
-        """
-        Handle user deletion.
-        :param req:
-        :param resp:
-        :return:
-        """
-        rdb.db(PROJECT_DB).table('riders').get().delete().run(rdb_conn)
-        resp.status = falcon.HTTP_202
-
-    def on_get(self, req, resp):
-        pass
 
 
 ##
@@ -275,6 +187,7 @@ class DriverResource(object):
 
 api.add_route('/quote/{quote_id}', QuoteResource())
 api.add_route('/quote', QuoteResource())
+# api.add_route('/rider/{rider_id}', RiderResource())
 api.add_route('/rider', RiderResource())
 api.add_route('/trip/{trip_id}', TripResource())
 api.add_route('/trip', TripResource())
