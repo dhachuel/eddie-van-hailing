@@ -1,0 +1,1 @@
+web: gunicorn --chdir server eddie.app:api --log-level=DEBUG
