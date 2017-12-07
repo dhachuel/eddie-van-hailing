@@ -125,3 +125,18 @@ class TripResource(object):
             )
             resp.content_type = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_OK
+
+
+class TripAvailabilityResource(object):
+    def on_get(self, req, resp):
+        rdb_response = rdb.db(PROJECT_DB).table('trips').filter(
+            {"status":"OPEN"}
+        ).order_by('created').run(rdb_conn)
+
+        resp.body = json.dumps(
+            rdb_response,
+            ensure_ascii=False,
+            default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
+        )
+        resp.content_type = falcon.MEDIA_JSON
+        resp.status = falcon.HTTP_OK

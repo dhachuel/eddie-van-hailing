@@ -8,19 +8,34 @@ from eddie.db_client import *
 from eddie.middleware import AuthMiddleware
 from eddie.hooks import api_key, log_operation
 from eddie.resources.quote import QuoteResource
-from eddie.resources.trip import TripResource
+from eddie.resources.trip import TripResource, TripAvailabilityResource
 from eddie.resources.rider import RiderResource
 from eddie.resources.driver import DriverResource, DriverLocationResource
 from eddie.helpers import getReQLNow
 import rethinkdb as rdb
+from falcon_multipart.middleware import MultipartMiddleware
 
 ##
 ## DECLARE API INSTANCE
 ##
 api = falcon.API(
-    middleware= AuthMiddleware()
+    middleware= [AuthMiddleware(), MultipartMiddleware()]
 )
 
+
+##
+## Selfie
+##
+class SelfieResource(object):
+    def on_post(self, req, resp, **kwargs):
+        user_id = req.get_param('user_id')
+        image = req.get_param('image')
+        # Read image as binary
+        raw = image.file.read()
+        # Retrieve filename
+        filename = image.filename
+
+        resp.status = falcon.HTTP_200
 
 ##
 ## Session Resource
@@ -94,6 +109,8 @@ api.add_route('/trip/{trip_id}', TripResource())
 api.add_route('/trip', TripResource())
 api.add_route('/driver', DriverResource())
 api.add_route('/driver/location/{driver_id}', DriverLocationResource())
+api.add_route('/selfie', SelfieResource())
+api.add_route('/availability', TripAvailabilityResource())
 
 
 
