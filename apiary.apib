@@ -3,37 +3,55 @@ HOST: http://polls.apiblueprint.org/
 
 # Eddie Van Hailing
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+The Eddie API is the backbone of the Eddie Van HAiling app. 
 
-## Questions Collection [/questions]
+## Questions Collection [/quote]
 
-### List All Questions [GET]
+### Create New Quote [POST]
+
+This method allows you to create a new quote given a pickup 
+and dropoff locationx
+
++ Request (application/json)
+
+        {
+            "rider_id": "58d7875b-40f1-4cab-b650-bfc972bb8a46",
+            "pickup_location":{
+                "latitude": 40.7246704,
+                "longitude": -73.9918311
+            },
+            "dropoff_location":{
+                "latitude": 40.759155474313346,
+                "longitude": -73.95326614379883
+            },
+            "pickup_datetime": "2017-11-16 15:42:49.440762-05:00"
+        }
 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
+                "rider_id": "58d7875b-40f1-4cab-b650-bfc972bb8a46",
+                "pickup_location": {
+                    "latitude": 40.7246704,
+                    "longitude": -73.9918311
+                },
+                "dropoff_location": {
+                    "latitude": 40.759155474313346,
+                    "longitude": -73.95326614379883
+                },
+                "pickup_datetime": "2017-11-16 15:42:49.440762-05:00",
+                "quote": {
+                    "ukelele": 18.72,
+                    "kramer": 34.71,
+                    "double-necker": 46.82
+                },
+                "created": "2017-12-07 03:19:32.014853+00:00",
+                "id": "a825b041-ed6b-4b66-a96d-dcfdb1488a89"
             }
         ]
 
-### Create a New Question [POST]
+### Get Quote Information [GET]
 
 You may create your own question using this action. It takes a JSON
 object containing a question and a collection of answers in the
