@@ -25,23 +25,23 @@ class AuthMiddleware(object):
         for exempt_path in EXEMPT_ROUTES:
             if exempt_path in req.path:
                 return
-
+        print("here")
         for exempt_method in EXEMPT_METHODS:
             if req.method == exempt_method:
                 return
 
-        if self._is_user_valid(req):
-            raise falcon.HTTPUnauthorized(description='valid user required')
+        # if self._is_user_valid(req.get_header('id')):
+        #     raise falcon.HTTPUnauthorized(description='valid user required')
 
-    def _is_user_valid(self, req):
+    def is_user_valid(self, user_id):
         """
         Checks if the given request is from a valid user, i.e the user's id is in the rider or driver database
         :param req: The given request object
         :return: True iff the given request is from a valid user
         """
         # Check if rider
-        user_id = req.get_header('id')
         rdb_response = rdb.db('eddie').table('riders').get(user_id).run(rdb_conn)
+        print(rdb_response)
         if len(rdb_response) > 0:
             return True # Rider found, reroute to rider endpoints
 
