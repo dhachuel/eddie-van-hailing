@@ -9,10 +9,9 @@ from eddie.db_client import *
 import hashlib
 
 ##
-## Rider Resource
+## Driver Resource
 ##
-class RiderResource(object):
-
+class DriverResource(object):
     @property
     def __post_request_schema(self):
         return (
@@ -57,41 +56,45 @@ class RiderResource(object):
         # Insert user in database
         check_if_email_exists = True \
             if rdb.db(PROJECT_DB) \
-                   .table('riders') \
+                   .table('drivers') \
                    .filter(rdb.row['email'] \
-                   .eq(result_json['email'])) \
+                           .eq(result_json['email'])) \
                    .count().run(rdb_conn) > 0 \
             else False
 
         if check_if_email_exists:
             resp.status = falcon.HTTP_303
-            resp.body = 'Rider already exists.'
+            resp.body = 'Driver already exists.'
         else:
-            rdb_response = rdb.db(PROJECT_DB).table('riders').insert(
+            rdb_response = rdb.db(PROJECT_DB).table('drivers').insert(
                 {
                     "email": result_json['email'],
                     "pwd": hashlib.sha256(str.encode(result_json['password'])).hexdigest(),
                     "username": result_json['username'],
+                    "location": {
+                        "latitude": None,
+                        "longitude": None
+                    },
                     "created": getReQLNow()
                 }
             ).run(rdb_conn)
             resp.body = json.dumps(
                 {
-                    "rider_id": rdb_response['generated_keys'][0]
+                    "driver_id": rdb_response['generated_keys'][0]
                 },
                 ensure_ascii=False,
                 default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
             )
-            resp.status = falcon.HTTP_201 # created
+            resp.status = falcon.HTTP_201  # created
 
-    def on_delete(self, req, resp, rider_id):
+    def on_delete(self, req, resp, driver_id):
         """
-        Handle user deletion.
-        :param req:
-        :param resp:
-        :return:
-        """
-        rdb.db(PROJECT_DB).table('riders').get(rider_id).delete().run(rdb_conn)
+		Handle user deletion.
+		:param req:
+		:param resp:
+		:return:
+		"""
+        rdb.db(PROJECT_DB).table('drivers').get(driver_id).delete().run(rdb_conn)
         resp.status = falcon.HTTP_202
 
     def on_get(self, req, resp):
@@ -101,63 +104,51 @@ class RiderResource(object):
         pwd_hash = hashlib.sha256(str.encode(password)).hexdigest()
 
         rdb_response = list(rdb.db(PROJECT_DB) \
-            .table('riders') \
+            .table('drivers') \
             .filter({
-                "email":email,
-                "pwd":pwd_hash
-            }).pluck('id', 'username').run(rdb_conn))
-
+			    "email": email,
+			    "pwd": pwd_hash
+		    }).pluck('id', 'username').run(rdb_conn))
 
         if rdb_response is None or len(rdb_response) != 1:
             resp.status = falcon.HTTP_404
         else:
             resp.body = json.dumps(
-                rdb_response[0],
-                ensure_ascii=False,
-                default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
-            )
+			    rdb_response[0],
+			    ensure_ascii=False,
+			    default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
+		    )
             resp.content_type = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_OK
 
 
+    def on_get(self, req, resp, driver_id):
+        rdb_response = list(rdb.db(PROJECT_DB).table('drivers').get(driver_id).pluck('location').run(rdb_conn))
 
+        if rdb_response is None or len(rdb_response) == 0:
+            resp.status = falcon.HTTP_404
+        else:
 
+            resp.body = json.dumps(
+			    rdb_response[0],
+			    ensure_ascii=False,
+			    default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
+		    )
+            resp.content_type = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_OK
 
+    def on_put(self, req, resp, driver_id):
+        lat = req.get_param('latitude') or ''
+        long = req.get_param('longitude') or ''
 
+        rdb.db(PROJECT_DB).table('drivers').get(driver_id).update(
+	        {
+		        "location": {
+			        "latitude": float(lat),
+			        "longitude": float(long)
+		        }
+	        }
+        ).run(rdb_conn)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        resp.status = falcon.HTTP_OK
 

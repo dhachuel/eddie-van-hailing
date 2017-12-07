@@ -8,7 +8,8 @@ global EXEMPT_ROUTES, EXEMPT_METHODS
 EXEMPT_ROUTES = [
     'quote',
     'trip',
-    'rider'
+    'rider',
+    'driver'
 ]
 EXEMPT_METHODS = [
 

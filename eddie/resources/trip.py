@@ -100,6 +100,10 @@ class TripResource(object):
         )
         resp.status = falcon.HTTP_201 # created
 
+
+
+
+
     def on_get(self, req, resp, trip_id):
         rdb_response = rdb.db(PROJECT_DB).table('trips').get(trip_id).run(rdb_conn)
 

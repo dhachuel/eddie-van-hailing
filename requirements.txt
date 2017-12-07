@@ -24,3 +24,4 @@ requests==2.18.4
 rethinkdb==2.3.0.post6
 six==1.11.0
 urllib3==1.22
+exponent-server-sdk==0.1.2
