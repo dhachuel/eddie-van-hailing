@@ -28,8 +28,8 @@ class AuthMiddleware(object):
             if req.method == exempt_method:
                 return
 
-        if self._is_user_valid(req):
-            raise falcon.HTTPUnauthorized(description='valid user required')
+        # if self._is_user_valid(req):
+        #     raise falcon.HTTPUnauthorized(description='valid user required')
 
     def _is_user_valid(self, req):
         """
@@ -40,6 +40,7 @@ class AuthMiddleware(object):
         # Check if rider
         user_id = req.get_header('id')
         rdb_response = rdb.db('eddie').table('riders').get(user_id).run(rdb_conn)
+        print(rdb_response)
         if len(rdb_response) > 0:
             return True # Rider found, reroute to rider endpoints
 
