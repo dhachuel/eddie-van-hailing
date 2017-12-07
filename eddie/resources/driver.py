@@ -75,7 +75,8 @@ class DriverResource(object):
                         "latitude": None,
                         "longitude": None
                     },
-                    "created": getReQLNow()
+                    "created": getReQLNow(),
+                    "avatar":None
                 }
             ).run(rdb_conn)
             resp.body = json.dumps(
@@ -108,7 +109,7 @@ class DriverResource(object):
             .filter({
 			    "email": email,
 			    "pwd": pwd_hash
-		    }).pluck('id', 'username').run(rdb_conn))
+		    }).pluck('id', 'username', 'avatar').run(rdb_conn))
 
         if rdb_response is None or len(rdb_response) != 1:
             resp.status = falcon.HTTP_404
