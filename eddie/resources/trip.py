@@ -153,6 +153,15 @@ class TripAvailabilityResource(object):
             {"driver_id":driver_id, "status":"ENROUTE"}
         ).run(rdb_conn)
 
+        resp.body = json.dumps(
+            {"trip_id":trip_id},
+            ensure_ascii=False,
+            default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
+        )
+
+        resp.content_type = falcon.MEDIA_JSON
+        resp.status = falcon.HTTP_OK
+
 
 
     def on_get(self, req, resp):
