@@ -128,6 +128,33 @@ class TripResource(object):
 
 
 class TripAvailabilityResource(object):
+    def on_put(self, req, resp):
+        try:
+            raw_json = req.stream.read()
+        except Exception as ex:
+            raise falcon.HTTPError(falcon.HTTP_400,
+                                   'Error',
+                                   ex.message)
+
+        try:
+            result_json = json.loads(raw_json, encoding='utf-8')
+        except ValueError:
+            raise falcon.HTTPError(
+                falcon.HTTP_400,
+                'Malformed JSON',
+                'Could not decode the request body. The '
+                'JSON was incorrect.'
+            )
+
+        trip_id = result_json['trip_id']
+        driver_id = result_json['driver_id']
+
+        rdb_response = rdb.db(PROJECT_DB).table('trips').get(trip_id).update(
+            {"driver_id":driver_id, "status":"ENROUTE"}
+        ).run(rdb_conn)
+
+
+
     def on_get(self, req, resp):
         rdb_response = rdb.db(PROJECT_DB).table('trips').filter(
             {"status":"OPEN"}
