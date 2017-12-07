@@ -8,6 +8,7 @@ import datetime
 from eddie.db_client import *
 import hashlib
 
+
 ##
 ## Rider Resource
 ##
@@ -118,46 +119,3 @@ class RiderResource(object):
             )
             resp.content_type = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_OK
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -41,7 +41,6 @@ class AuthMiddleware(object):
         """
         # Check if rider
         rdb_response = rdb.db('eddie').table('riders').get(user_id).run(rdb_conn)
-        print(rdb_response)
         if len(rdb_response) > 0:
             return True # Rider found, reroute to rider endpoints
 
