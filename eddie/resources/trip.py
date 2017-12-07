@@ -7,6 +7,7 @@ from eddie.helpers import getReQLNow
 import rethinkdb as rdb
 import json
 import datetime
+from eddie.send_sms import send_message
 from eddie.db_client import *
 import logging
 
@@ -93,6 +94,8 @@ class TripResource(object):
         ).run(rdb_conn)
         trip_id = rdb_response['generated_keys'][0]
 
+        self.send_numbers()
+
         resp.body = json.dumps(
             {"trip_id": trip_id},
             ensure_ascii = False,
@@ -101,7 +104,11 @@ class TripResource(object):
         resp.status = falcon.HTTP_201 # created
 
 
-
+    def send_numbers(self):
+        cursor = rdb.db(PROJECT_DB).table("drivers").run(rdb_conn)
+        for document in cursor:
+            if 'phone_number' in document:
+                send_message(document['phone_number'])
 
 
     def on_get(self, req, resp, trip_id):
