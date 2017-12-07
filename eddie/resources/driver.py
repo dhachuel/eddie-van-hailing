@@ -98,6 +98,7 @@ class DriverResource(object):
         rdb.db(PROJECT_DB).table('drivers').get(driver_id).delete().run(rdb_conn)
         resp.status = falcon.HTTP_202
 
+
     def on_get(self, req, resp):
         email = req.get_param('email') or ''
         password = req.get_param('password') or ''
@@ -105,36 +106,36 @@ class DriverResource(object):
         pwd_hash = hashlib.sha256(str.encode(password)).hexdigest()
 
         rdb_response = list(rdb.db(PROJECT_DB) \
-            .table('drivers') \
-            .filter({
-			    "email": email,
-			    "pwd": pwd_hash
-		    }).pluck('id', 'username', 'avatar').run(rdb_conn))
+                            .table('drivers') \
+                            .filter({
+            "email": email,
+            "pwd": pwd_hash
+        }).pluck('id', 'username', 'avatar').run(rdb_conn))
 
         if rdb_response is None or len(rdb_response) != 1:
             resp.status = falcon.HTTP_404
         else:
             resp.body = json.dumps(
-			    rdb_response[0],
-			    ensure_ascii=False,
-			    default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
-		    )
+                rdb_response[0],
+                ensure_ascii=False,
+                default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
+            )
             resp.content_type = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_OK
 
 
+class DriverLocationResource(object):
     def on_get(self, req, resp, driver_id):
-        rdb_response = list(rdb.db(PROJECT_DB).table('drivers').get(driver_id).pluck('location').run(rdb_conn))
+        rdb_response = rdb.db(PROJECT_DB).table('drivers').get(driver_id).pluck('location').run(rdb_conn)
 
         if rdb_response is None or len(rdb_response) == 0:
             resp.status = falcon.HTTP_404
         else:
-
             resp.body = json.dumps(
-			    rdb_response[0],
-			    ensure_ascii=False,
-			    default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
-		    )
+                rdb_response['location'],
+                ensure_ascii=False,
+                default=lambda x: x.__str__() if isinstance(x, datetime.datetime) else x
+            )
             resp.content_type = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_OK
 
@@ -143,13 +144,12 @@ class DriverResource(object):
         long = req.get_param('longitude') or ''
 
         rdb.db(PROJECT_DB).table('drivers').get(driver_id).update(
-	        {
-		        "location": {
-			        "latitude": float(lat),
-			        "longitude": float(long)
-		        }
-	        }
+            {
+                "location": {
+                    "latitude": float(lat),
+                    "longitude": float(long)
+                }
+            }
         ).run(rdb_conn)
 
         resp.status = falcon.HTTP_OK
-

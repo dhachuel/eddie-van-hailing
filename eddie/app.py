@@ -10,7 +10,7 @@ from eddie.hooks import api_key, log_operation
 from eddie.resources.quote import QuoteResource
 from eddie.resources.trip import TripResource
 from eddie.resources.rider import RiderResource
-from eddie.resources.driver import DriverResource
+from eddie.resources.driver import DriverResource, DriverLocationResource
 from eddie.helpers import getReQLNow
 import rethinkdb as rdb
 
@@ -93,7 +93,7 @@ api.add_route('/rider', RiderResource())
 api.add_route('/trip/{trip_id}', TripResource())
 api.add_route('/trip', TripResource())
 api.add_route('/driver', DriverResource())
-api.add_route('/driver/location/{driver_id}', DriverResource())
+api.add_route('/driver/location/{driver_id}', DriverLocationResource())
 
 
 
